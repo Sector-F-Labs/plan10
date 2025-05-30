@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.sectorflabs.caffeinate</string>
+    <string>com.plan10.caffeinate</string>
 
     <key>ProgramArguments</key>
     <array>
