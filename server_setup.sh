@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "⚙️ Plan 10 Server Setup with Battery Power Management"
-echo "===================================================="
+echo "⚙️ Plan 10 Server Setup"
+echo "======================"
 
 # Ensure the script is run with root privileges
 if [[ "$EUID" -ne 0 ]]; then
@@ -10,12 +10,7 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 echo ""
-echo "🔋 Configuring battery power management..."
-
-# Prevent system shutdown on battery power
-echo "  • Setting battery halt level to 5% (prevents early shutdown)..."
-pmset -b haltlevel 5 2>/dev/null || echo "    ℹ️  haltlevel not available on this system"
-pmset -b haltafter 0 2>/dev/null || echo "    ℹ️  haltafter not available on this system"
+echo "🔋 Configuring power management..."
 
 # Keep system awake on both AC and battery power
 echo "  • Disabling sleep on AC power..."
@@ -34,32 +29,10 @@ pmset -a standby 0
 pmset -a hibernatemode 0
 pmset -a powernap 0
 
-# Enable network connectivity on battery power
-echo "  • Enabling network connectivity on battery power..."
-pmset -b tcpkeepalive 1
-pmset -b womp 1
-pmset -c tcpkeepalive 1
-pmset -a networkoversleep 0
-
-# Additional network-specific power management
-echo "  • Disabling WiFi power management..."
-networksetup -setairportpower en0 on 2>/dev/null || echo "    ℹ️  Could not configure WiFi power"
-
-# Prevent network interface power down
-echo "  • Preventing network interface power down..."
-pmset -b ttyskeepawake 1
-pmset -c ttyskeepawake 1
-
-# Disable automatic power off
-echo "  • Disabling automatic power off..."
-pmset -a autopoweroff 0 2>/dev/null || echo "    ℹ️  autopoweroff not available on this system"
-pmset -a autopoweroffdelay 0 2>/dev/null || echo "    ℹ️  autopoweroffdelay not available on this system"
-
-# Additional power management settings
-echo "  • Applying additional power settings..."
-pmset -a sms 0 2>/dev/null || echo "    ℹ️  SMS not available on this system"
-pmset -a reducebright 0 2>/dev/null
-pmset -a halfdim 0 2>/dev/null
+# Basic network connectivity settings
+echo "  • Enabling basic network connectivity..."
+pmset -a tcpkeepalive 1
+pmset -a womp 1
 
 echo ""
 echo "⚙️ Configuring system restart and wake settings..."
@@ -81,8 +54,8 @@ if [[ -n $caffeinate_pids ]]; then
   sleep 2
 fi
 
-echo "  • Starting enhanced caffeinate (prevents idle, system, user, disk sleep)..."
-nohup caffeinate -imsud > /dev/null 2>&1 &
+echo "  • Starting caffeinate (prevents idle, system, user sleep)..."
+nohup caffeinate -imsu > /dev/null 2>&1 &
 sleep 1
 
 # Verify caffeinate started
@@ -96,16 +69,7 @@ fi
 echo ""
 echo "📊 Current Power Settings Summary:"
 echo "=================================="
-echo "Sleep settings:"
-pmset -g | grep -E "(sleep|disksleep|standby|hibernatemode|powernap|autopoweroff)"
-
-echo ""
-echo "Network settings:"
-pmset -g | grep -E "(tcpkeepalive|womp|networkoversleep)"
-
-echo ""
-echo "Power assertions (what's keeping system awake):"
-pmset -g assertions | head -10
+pmset -g | head -15
 
 echo ""
 echo "🔋 Battery Status:"
@@ -116,23 +80,18 @@ echo ""
 echo "🖥️ Plan 10 server setup complete!"
 echo ""
 echo "✅ Key configurations applied:"
-echo "  • System will NOT shut down when AC power is lost"
-echo "  • Network connectivity maintained on battery power"
-echo "  • Battery halt level set to 5% (prevents early shutdown)"
 echo "  • Sleep disabled on both AC and battery power"
-echo "  • Hibernation, standby, and power nap disabled"
-echo "  • Auto power-off disabled"
-echo "  • Enhanced caffeinate process running"
+echo "  • Hibernation and standby disabled"
+echo "  • Wake-on-LAN enabled"
+echo "  • Caffeinate process running"
 echo "  • Auto-restart configured for power loss and system freeze"
+echo ""
+echo "⚠️  Known limitation:"
+echo "  • Network connectivity may be lost when running on battery with lid closed (clamshell mode)"
+echo "  • For reliable battery backup, keep lid open or use external display"
 echo ""
 echo "🔧 Verification commands:"
 echo "  • Check power settings: pmset -g"
 echo "  • Check caffeinate status: pgrep caffeinate"
 echo "  • Check power assertions: pmset -g assertions"
 echo "  • Run diagnostics: ~/scripts/power_diagnostics"
-echo ""
-echo "⚠️  Important notes:"
-echo "  • Test power loss in a controlled environment first"
-echo "  • Monitor system temperature during extended battery operation"
-echo "  • This script is idempotent - safe to run multiple times"
-echo "  • Use 'pmset -g assertions' to verify caffeinate is working"

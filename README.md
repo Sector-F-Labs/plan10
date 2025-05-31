@@ -11,7 +11,7 @@ So the Plan 10 project was born, with a name loosely inspired by [Plan 9](https:
 **Benefits of repurposing your MacBook as a server:**
 - **More powerful than typical home servers** - Intel MacBooks have substantial CPU and RAM
 - **Excellent build quality** - Apple hardware is designed to last
-- **Built-in UPS** - Battery backup during power outages
+- **Built-in UPS** - Battery backup during power outages (with limitations, see below)
 - **Low power consumption** - Especially when running headless
 - **Familiar Unix environment** - Full macOS with Terminal access
 - **Cost effective** - Repurpose existing hardware instead of buying new
@@ -23,7 +23,21 @@ Plan 10 automates the setup of a MacBook as a persistent server with the followi
 - Configures power management for server operation
 - Sets up automatic startup services
 - Enables remote deployment capabilities
-- Supports clamshell (closed lid) operation
+- Works best with external display or lid open
+
+## Known Limitations
+
+⚠️ **Clamshell Mode Battery Operation**: Currently, Plan 10 cannot maintain network connectivity when running on battery power with the lid closed (clamshell mode). This is a macOS system limitation that affects the "Built-in UPS" functionality.
+
+**Current Status:**
+- ✅ **AC Power + Lid Closed**: Works perfectly
+- ✅ **Battery Power + Lid Open**: Works perfectly  
+- ❌ **Battery Power + Lid Closed**: Network connectivity lost
+
+**Workarounds:**
+- Keep lid open during power outages
+- Use external display to prevent true clamshell mode
+- Plan 10 works excellently for all other server scenarios
 
 ## From Scratch Setup
 
@@ -151,15 +165,19 @@ Local Machine (gunnir)           Remote Server (plan10)
 
 **Why the two-step process?** The server setup script requires `sudo` privileges to modify system power settings, which needs an interactive terminal session on the target machine.
 
+**Important:** After setup, test your specific use case. The current limitation with clamshell mode on battery power may affect your deployment if you require true "closed lid + battery backup" operation.
+
 ## Core Components
 
 ### Power Management
 - **caffeinate**: Prevents system sleep during idle, disk, and user activity
-- **LaunchAgent**: Ensures caffeinate runs automatically at startup
+- **LaunchAgent**: Ensures caffeinate runs automatically at startup  
 - **System settings**: Configures auto-restart after power loss or freeze
+- **Wake-on-LAN**: Enables remote wake capabilities
 
 ### Server Setup Script
 The `server_setup.sh` script configures:
+- Disables all sleep modes for continuous operation
 - Automatic restart after system freeze
 - Power-on after power loss
 - Wake-on-network access
@@ -169,18 +187,24 @@ The `server_setup.sh` script configures:
 Built-in monitoring scripts provide real-time server status:
 - `temp` - System temperature and thermal status monitoring
 - `battery` - Battery level, charging status, and health information
+- `power_diagnostics` - Power management diagnostics and troubleshooting
 - `sysmon` - Help and overview of monitoring tools
 
 ## Clamshell Mode Operation
 
-Once configured, your MacBook can run with the lid closed:
+Once configured, your MacBook can run with the lid closed **when connected to AC power**:
 
 1. **Ensure external power is connected**
-2. **Connect external display temporarily** (for any GUI needs)
+2. **Connect external display** (recommended for best compatibility)
 3. **Test all services work properly**
 4. **Close the lid** - system will remain awake and accessible via SSH
 
-**Important**: The system will stay awake indefinitely. Monitor power consumption and ensure adequate cooling.
+**Important Limitations:**
+- ✅ **AC Power**: Clamshell mode works perfectly
+- ❌ **Battery Power**: Network connectivity lost in clamshell mode
+- 💡 **Workaround**: Keep lid open or use external display during power outages
+
+**Monitoring**: The system will stay awake indefinitely on AC power. Monitor power consumption and ensure adequate cooling.
 
 ## Available Commands
 
@@ -218,8 +242,22 @@ For detailed usage examples and advanced operations, see the [Usage Guide](docs/
 - **Power Management Issues** - See [Power management troubleshooting](docs/troubleshooting.md#power-management-issues)
 - **Auto Login Not Working** - See [Auto login troubleshooting](docs/troubleshooting.md#auto-login-not-working)
 - **Server Setup Requires SSH** - The `sudo ./server_setup.sh` command must be run interactively on the target machine, not remotely, due to password requirements
+- **Clamshell Battery Networking** - Network connectivity is lost when running on battery with lid closed. This is a known macOS limitation.
 
 For complete troubleshooting information, see the [Troubleshooting Guide](docs/troubleshooting.md).
+
+## Use Cases and Limitations
+
+**Ideal Use Cases:**
+- Development server with external display
+- Home lab server with consistent AC power
+- Media server with lid open or external display
+- CI/CD server in controlled environment
+
+**Current Limitations:**
+- Battery backup requires lid open or external display
+- True "closed lid + battery only" operation not supported
+- Best suited for AC-powered server deployments
 
 ## Security Considerations
 

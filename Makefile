@@ -93,7 +93,7 @@ deploy:
 	@echo "🔍 Verify deployment:"
 	@echo "   make diagnose-remote"
 	@echo ""
-	@echo "💡 The server setup will fix network connectivity issues on battery power"
+	@echo "⚠️  Note: Network connectivity may be lost in clamshell mode on battery power"
 
 diagnose-remote:
 	@echo "🔌 Running power diagnostics on remote server $(REMOTE_USER_HOST)..."
