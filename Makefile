@@ -9,7 +9,7 @@ SERVER_HOST ?= plan10
 # Remote connection
 REMOTE_USER_HOST = $(SERVER_USER)@$(SERVER_HOST)
 
-.PHONY: all clean deploy help setup check-env apps diagnose-remote
+.brew install --cask keepingyouawakePHONY: all clean deploy help setup check-env apps diagnose-remote
 
 help:
 	@echo "Plan 10 Server Setup"

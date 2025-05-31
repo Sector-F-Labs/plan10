@@ -25,19 +25,29 @@ Plan 10 automates the setup of a MacBook as a persistent server with the followi
 - Enables remote deployment capabilities
 - Works best with external display or lid open
 
-## Known Limitations
+## Known Limitations & Safety Considerations
 
 ⚠️ **Clamshell Mode Battery Operation**: Currently, Plan 10 cannot maintain network connectivity when running on battery power with the lid closed (clamshell mode). This is a macOS system limitation that affects the "Built-in UPS" functionality.
 
-**Current Status:**
-- ✅ **AC Power + Lid Closed**: Works perfectly
-- ✅ **Battery Power + Lid Open**: Works perfectly  
-- ❌ **Battery Power + Lid Closed**: Network connectivity lost
+🌡️ **Thermal Safety Warning**: Running on battery power with the lid closed can create thermal hazards as heat builds up inside the closed laptop without proper ventilation. This combination is **NOT RECOMMENDED** for server operation.
 
-**Workarounds:**
-- Keep lid open during power outages
-- Use external display to prevent true clamshell mode
-- Plan 10 works excellently for all other server scenarios
+**Current Status:**
+- ✅ **AC Power + Lid Closed**: Works perfectly (with external power, thermal management is adequate)
+- ✅ **Battery Power + Lid Open**: Works perfectly (excellent thermal ventilation)
+- ❌ **Battery Power + Lid Closed**: Network connectivity lost + thermal hazard risk
+
+**Safety & Performance Benefits of Lid-Open Operation:**
+- 🌡️ **Superior thermal management** - Direct airflow to internal components
+- 🔥 **Prevents heat buildup** - Critical for sustained server workloads
+- 🖥️ **Visual status indicators** - Can see power/activity LEDs
+- 🔋 **Safer battery operation** - Better heat dissipation during charging/discharging
+- 📊 **Performance benefits** - CPU can maintain higher clock speeds with better cooling
+
+**Recommended Configurations:**
+1. **Primary**: AC Power + External Display + Lid Open (best thermals)
+2. **Alternative**: AC Power + Lid Closed (acceptable for light workloads)
+3. **Emergency**: Battery Power + Lid Open (safe for temporary operation)
+4. **AVOID**: Battery Power + Lid Closed (network + thermal issues)
 
 ## From Scratch Setup
 
@@ -190,21 +200,32 @@ Built-in monitoring scripts provide real-time server status:
 - `power_diagnostics` - Power management diagnostics and troubleshooting
 - `sysmon` - Help and overview of monitoring tools
 
-## Clamshell Mode Operation
+## Server Operation Modes
 
+### Recommended: Lid Open Operation
+**Best for server workloads** - provides optimal thermal performance:
+
+1. **Connect external power**
+2. **Optional: Connect external display**
+3. **Keep lid open** for best thermal management
+4. **Position for good airflow** around vents
+
+### Alternative: Clamshell Mode (AC Power Only)
 Once configured, your MacBook can run with the lid closed **when connected to AC power**:
 
 1. **Ensure external power is connected**
 2. **Connect external display** (recommended for best compatibility)
-3. **Test all services work properly**
-4. **Close the lid** - system will remain awake and accessible via SSH
+3. **Monitor temperatures closely** - use `temp` command
+4. **Test all services work properly**
+5. **Close the lid** - system will remain awake and accessible via SSH
 
-**Important Limitations:**
-- ✅ **AC Power**: Clamshell mode works perfectly
-- ❌ **Battery Power**: Network connectivity lost in clamshell mode
-- 💡 **Workaround**: Keep lid open or use external display during power outages
+**Important Safety & Limitations:**
+- ✅ **AC Power + Lid Closed**: Works but monitor temperatures
+- ❌ **Battery Power + Lid Closed**: Network fails + thermal hazard
+- 🌡️ **Thermal Management**: Lid open provides much better cooling
+- 💡 **Best Practice**: Keep lid open for sustained server workloads
 
-**Monitoring**: The system will stay awake indefinitely on AC power. Monitor power consumption and ensure adequate cooling.
+**Monitoring**: The system will stay awake indefinitely on AC power. **Always monitor temperatures** and ensure adequate cooling, especially in clamshell mode.
 
 ## Available Commands
 
@@ -249,15 +270,21 @@ For complete troubleshooting information, see the [Troubleshooting Guide](docs/t
 ## Use Cases and Limitations
 
 **Ideal Use Cases:**
-- Development server with external display
-- Home lab server with consistent AC power
-- Media server with lid open or external display
-- CI/CD server in controlled environment
+- Development server with lid open (best thermals)
+- Home lab server with consistent AC power and good ventilation
+- Media server with external display and open lid
+- CI/CD server in controlled environment with temperature monitoring
 
 **Current Limitations:**
-- Battery backup requires lid open or external display
-- True "closed lid + battery only" operation not supported
-- Best suited for AC-powered server deployments
+- Battery backup requires lid open (for connectivity AND thermal safety)
+- True "closed lid + battery only" operation not supported (network + thermal issues)
+- Clamshell mode generates more heat - monitor temperatures closely
+- Best suited for AC-powered server deployments with proper cooling
+
+**Thermal Considerations:**
+- ⭐ **Lid Open**: Excellent thermal performance, recommended for all server workloads
+- ⚠️ **Lid Closed**: Acceptable on AC power for light workloads, monitor temperatures
+- 🚫 **Battery + Lid Closed**: Not recommended due to thermal and connectivity issues
 
 ## Security Considerations
 
