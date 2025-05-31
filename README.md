@@ -131,7 +131,7 @@ For the best server setup experience, start with a clean slate:
 Install the Plan 10 CLI with a single command:
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install.sh | sh
+curl -sSf https://raw.githubusercontent.com/sector-f-labs/plan10/main/install.sh | sh
 ```
 
 This installer will:
