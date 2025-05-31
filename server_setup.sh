@@ -33,7 +33,22 @@ echo "  • Disabling hibernation, standby, and power nap..."
 pmset -a standby 0
 pmset -a hibernatemode 0
 pmset -a powernap 0
-pmset -a tcpkeepalive 0
+
+# Enable network connectivity on battery power
+echo "  • Enabling network connectivity on battery power..."
+pmset -b tcpkeepalive 1
+pmset -b womp 1
+pmset -c tcpkeepalive 1
+pmset -a networkoversleep 0
+
+# Additional network-specific power management
+echo "  • Disabling WiFi power management..."
+networksetup -setairportpower en0 on 2>/dev/null || echo "    ℹ️  Could not configure WiFi power"
+
+# Prevent network interface power down
+echo "  • Preventing network interface power down..."
+pmset -b ttyskeepawake 1
+pmset -c ttyskeepawake 1
 
 # Disable automatic power off
 echo "  • Disabling automatic power off..."
@@ -85,6 +100,10 @@ echo "Sleep settings:"
 pmset -g | grep -E "(sleep|disksleep|standby|hibernatemode|powernap|autopoweroff)"
 
 echo ""
+echo "Network settings:"
+pmset -g | grep -E "(tcpkeepalive|womp|networkoversleep)"
+
+echo ""
 echo "Power assertions (what's keeping system awake):"
 pmset -g assertions | head -10
 
@@ -98,6 +117,7 @@ echo "🖥️ Plan 10 server setup complete!"
 echo ""
 echo "✅ Key configurations applied:"
 echo "  • System will NOT shut down when AC power is lost"
+echo "  • Network connectivity maintained on battery power"
 echo "  • Battery halt level set to 5% (prevents early shutdown)"
 echo "  • Sleep disabled on both AC and battery power"
 echo "  • Hibernation, standby, and power nap disabled"

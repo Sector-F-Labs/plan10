@@ -104,38 +104,52 @@ For the best server setup experience, start with a clean slate:
 
 Once your Mac is prepared with SSH access, deploy Plan 10 from your local machine:
 
-### Configuration
+### Deployment Workflow
+
+```
+Local Machine (gunnir)           Remote Server (plan10)
+┌─────────────────┐             ┌─────────────────┐
+│ 1. make setup   │             │                 │
+│    (configure)  │             │                 │
+│                 │             │                 │
+│ 2. make deploy  │────────────▶│ Files copied    │
+│    (deploy all) │             │                 │
+│                 │             │ 3. SSH login    │
+│                 │◀────────────│ sudo setup.sh   │
+│                 │             │                 │
+│ 4. Verify       │             │ ✅ Server ready │
+│ make diagnose   │◀────────────│                 │
+└─────────────────┘             └─────────────────┘
+```
+
+### Step-by-Step Instructions
 
 1. **Configure your environment:**
    ```sh
    make setup
    ```
+   *Or manually create a `.env` file with SERVER_USER and SERVER_HOST*
 
-2. **Or manually create a `.env` file:**
+2. **Deploy everything to your server:**
    ```sh
-   SERVER_USER=your-username
-   SERVER_HOST=your-server-hostname-or-ip
+   make deploy
    ```
+   *This copies all files: server setup, monitoring scripts, LaunchAgent, and aliases*
 
-### Deploy Core Server Configuration
-
-3. **Deploy to your server:**
-   ```sh
-   make push
-   ```
-
-4. **Run server setup on target machine:**
+3. **Complete setup on target machine:**
    ```sh
    ssh your-user@your-server
    sudo ./server_setup.sh
    ```
+   *This configures power management including network connectivity fixes for battery operation*
 
-### Deploy System Monitoring
-
-5. **Deploy monitoring scripts:**
+4. **Verify deployment:**
    ```sh
-   make push-scripts
+   make diagnose-remote
    ```
+   *Check that all power management issues are resolved*
+
+**Why the two-step process?** The server setup script requires `sudo` privileges to modify system power settings, which needs an interactive terminal session on the target machine.
 
 ## Core Components
 
@@ -174,8 +188,8 @@ Once configured, your MacBook can run with the lid closed:
 make help           # Show all available commands
 make setup          # Interactive environment setup
 make check-env      # Display current configuration
-make push           # Deploy core server configuration
-make push-scripts   # Deploy system monitoring scripts
+make deploy         # Deploy complete server configuration
+make diagnose-remote # Run power diagnostics on remote server
 make apps           # Show available applications
 ```
 
@@ -186,9 +200,15 @@ make apps           # Show available applications
 
 ## Quick Reference
 
+### Complete Deployment Process
+1. **Deploy to server**: `make deploy`
+2. **Complete setup**: SSH to server and run `sudo ./server_setup.sh`
+3. **Verify**: `make diagnose-remote`
+
 ### System Monitoring Commands (After Deployment)
 - `temp` - System temperature and thermal status
 - `battery` - Battery level, charging status, and health
+- `power_diagnostics` - Power management diagnostics and fixes
 - `sysmon` - Help and overview of monitoring tools
 
 For detailed usage examples and advanced operations, see the [Usage Guide](docs/usage.md).
@@ -197,6 +217,7 @@ For detailed usage examples and advanced operations, see the [Usage Guide](docs/
 - **SSH Connection Problems** - See [SSH troubleshooting](docs/troubleshooting.md#ssh-connection-issues)
 - **Power Management Issues** - See [Power management troubleshooting](docs/troubleshooting.md#power-management-issues)
 - **Auto Login Not Working** - See [Auto login troubleshooting](docs/troubleshooting.md#auto-login-not-working)
+- **Server Setup Requires SSH** - The `sudo ./server_setup.sh` command must be run interactively on the target machine, not remotely, due to password requirements
 
 For complete troubleshooting information, see the [Troubleshooting Guide](docs/troubleshooting.md).
 
@@ -245,7 +266,7 @@ plan10/
 ### Custom Environment Variables
 Override any configuration:
 ```sh
-make push SERVER_USER=admin SERVER_HOST=macbook-server.local
+make deploy SERVER_USER=admin SERVER_HOST=macbook-server.local
 ```
 
 ### Manual LaunchAgent Management
