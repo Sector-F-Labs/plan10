@@ -18,6 +18,8 @@ help:
 	@echo "  setup         - Run interactive setup to create .env file"
 	@echo "  deploy        - Deploy complete Plan 10 server configuration"
 	@echo "  diagnose-remote - Run power diagnostics on remote server"
+	@echo "  install-cli   - Install Plan 10 CLI (installs Rust if needed)"
+	@echo "  test-installer - Test the installer script locally"
 	@echo "  check-env     - Show current configuration"
 	@echo "  apps          - Show available applications"
 	@echo "  clean         - Clean temporary files"
@@ -116,3 +118,24 @@ diagnose-remote:
 clean:
 	@echo "🧹 Cleaning up temporary files..."
 	@echo "Nothing to clean yet."
+
+install-cli:
+	@echo "🦀 Installing Plan 10 CLI..."
+	@echo ""
+	@echo "This will install Rust (if needed) and Plan 10 CLI"
+	@echo "Press Ctrl+C to cancel, or Enter to continue..."
+	@read dummy
+	@./install.sh
+
+test-installer:
+	@echo "🧪 Testing Plan 10 CLI installer..."
+	@echo ""
+	@echo "Running installer script in test mode..."
+	@bash -n install.sh && echo "✅ Installer syntax check passed"
+	@bash -n install-one-liner.sh && echo "✅ One-liner installer syntax check passed"
+	@echo ""
+	@echo "To test full installation:"
+	@echo "  ./install.sh"
+	@echo ""
+	@echo "Or test the one-liner:"
+	@echo "  ./install-one-liner.sh"

@@ -15,23 +15,48 @@ A powerful command-line interface for Plan 10 MacBook server management, written
 
 ## Installation
 
-### From Source
+### Quick Install (Recommended)
+
+Install Plan 10 CLI with a single command that handles Rust dependencies:
 
 ```bash
-# Clone the repository
-cd plan10/plan10-cli
+# One-liner installer (installs Rust if needed)
+curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install.sh | sh
 
-# Build release binary
-cargo build --release
-
-# Install locally
-cargo install --path .
-
-# Or copy binary to PATH
-cp target/release/plan10 /usr/local/bin/
+# Or use the compact version
+curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install-one-liner.sh | sh
 ```
 
-### Pre-built Binaries
+This installer will:
+- Detect your operating system (macOS/Linux)
+- Install Rust and Cargo if not present
+- Install Plan 10 CLI directly from GitHub
+- Configure your PATH automatically
+
+After installation, restart your terminal or run:
+```bash
+source ~/.cargo/env
+```
+
+### Manual Installation
+
+#### From Source
+
+```bash
+# Install Rust first (if not installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Install Plan 10 CLI from GitHub
+cargo install --git https://github.com/plan10/plan10 plan10-cli
+
+# Or clone and build locally
+git clone https://github.com/plan10/plan10.git
+cd plan10/plan10-cli
+cargo build --release
+cargo install --path .
+```
+
+#### Pre-built Binaries
 
 Download the latest release from the [releases page](https://github.com/plan10/plan10/releases).
 

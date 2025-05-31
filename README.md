@@ -124,9 +124,39 @@ For the best server setup experience, start with a clean slate:
     - Ensure you can connect and run commands
     - If using SSH keys, set them up now for passwordless access
 
-## Plan 10 Deployment
+## Plan 10 Installation & Deployment
 
-Once your Mac is prepared with SSH access, deploy Plan 10 from your local machine:
+### Option 1: Quick Install (Recommended)
+
+Install the Plan 10 CLI with a single command:
+
+```bash
+# Install Plan 10 CLI (installs Rust if needed)
+curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install.sh | sh
+
+# Or use the compact one-liner
+curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install-one-liner.sh | sh
+```
+
+This installer will:
+- Check for Rust/Cargo and install if missing
+- Install Plan 10 CLI from GitHub
+- Configure your PATH automatically
+- Work on both macOS and Linux
+
+After installation:
+```bash
+# Quick setup
+plan10 setup
+
+# Deploy to your server
+plan10 client add myserver --host 192.168.1.100 --user admin
+plan10 client deploy --host myserver --all
+```
+
+### Option 2: Manual Deployment (Legacy Method)
+
+If you prefer the traditional approach, once your Mac is prepared with SSH access, deploy Plan 10 from your local machine:
 
 ### Deployment Workflow
 
