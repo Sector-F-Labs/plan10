@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-REPO_URL="https://github.com/plan10/plan10"
+REPO_URL="https://github.com/sector-f-labs/plan10"
 CLI_PACKAGE="plan10-cli"
 RUSTUP_URL="https://sh.rustup.rs"
 
@@ -67,7 +67,7 @@ install_rust() {
     fi
 
     info "Rust not found. Installing Rust via rustup..."
-    
+
     if ! command_exists curl; then
         error "curl is required but not installed. Please install curl and try again."
     fi
@@ -112,7 +112,7 @@ install_plan10_cli() {
 # Check if Plan 10 CLI is in PATH
 check_path() {
     CARGO_BIN="$HOME/.cargo/bin"
-    
+
     if [[ ":$PATH:" != *":$CARGO_BIN:"* ]]; then
         warn "Cargo bin directory is not in your PATH"
         info "Add the following line to your shell profile (~/.bashrc, ~/.zshrc, etc.):"
