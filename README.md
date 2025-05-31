@@ -161,7 +161,7 @@ If you prefer the traditional approach, once your Mac is prepared with SSH acces
 ### Deployment Workflow
 
 ```
-Local Machine (gunnir)           Remote Server (plan10)
+   Local Machine                   Remote Server
 ┌─────────────────┐             ┌─────────────────┐
 │ 1. make setup   │             │                 │
 │    (configure)  │             │                 │
@@ -211,7 +211,7 @@ Local Machine (gunnir)           Remote Server (plan10)
 
 ### Power Management
 - **caffeinate**: Prevents system sleep during idle, disk, and user activity
-- **LaunchAgent**: Ensures caffeinate runs automatically at startup  
+- **LaunchAgent**: Ensures caffeinate runs automatically at startup
 - **System settings**: Configures auto-restart after power loss or freeze
 - **Wake-on-LAN**: Enables remote wake capabilities
 
