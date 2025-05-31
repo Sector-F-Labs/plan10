@@ -1,0 +1,360 @@
+#!/bin/bash
+
+# Power Diagnostics Script for Plan 10
+# Helps diagnose power management and battery issues
+
+show_help() {
+    echo "🔌 Power Diagnostics for Plan 10"
+    echo "================================"
+    echo ""
+    echo "Usage: power_diagnostics [options]"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --verbose  Show detailed power management settings"
+    echo "  -b, --battery  Focus on battery-specific diagnostics"
+    echo "  -s, --sleep    Show sleep/wake related settings"
+    echo "  -a, --all      Show all available power information"
+    echo "  -f, --fix      Show recommended fixes for identified issues"
+    echo ""
+    echo "Examples:"
+    echo "  power_diagnostics           # Basic power status"
+    echo "  power_diagnostics -b        # Battery-focused diagnostics"
+    echo "  power_diagnostics -a        # Complete power analysis"
+    echo "  power_diagnostics -f        # Show fixes for issues"
+}
+
+show_basic_status() {
+    echo "⚡ Basic Power Status"
+    echo "===================="
+    
+    # Battery status
+    battery_info=$(pmset -g batt | head -1)
+    if [[ $battery_info == *"Battery Power"* ]]; then
+        echo "🔋 Currently running on: Battery Power"
+    elif [[ $battery_info == *"AC Power"* ]]; then
+        echo "🔌 Currently running on: AC Power"
+    else
+        echo "❓ Power source: Unknown"
+    fi
+    
+    # Battery percentage
+    battery_pct=$(pmset -g batt | grep -o '[0-9]*%' | head -1)
+    if [[ -n $battery_pct ]]; then
+        pct_num=$(echo $battery_pct | tr -d '%')
+        if [[ $pct_num -gt 80 ]]; then
+            echo "🟢 Battery Level: $battery_pct (Good)"
+        elif [[ $pct_num -gt 50 ]]; then
+            echo "🟡 Battery Level: $battery_pct (Medium)"
+        elif [[ $pct_num -gt 20 ]]; then
+            echo "🟠 Battery Level: $battery_pct (Low)"
+        else
+            echo "🔴 Battery Level: $battery_pct (Critical)"
+        fi
+    fi
+    
+    # Check if caffeinate is running
+    if pgrep -x "caffeinate" > /dev/null; then
+        caffeinate_pid=$(pgrep caffeinate)
+        echo "☕ Caffeinate: ✅ Running (PID: $caffeinate_pid)"
+    else
+        echo "☕ Caffeinate: ❌ Not running"
+    fi
+    
+    echo ""
+}
+
+analyze_power_issues() {
+    echo "🔍 Power Management Analysis"
+    echo "==========================="
+    
+    local issues_found=0
+    
+    # Check hibernation mode
+    hibernate_mode=$(pmset -g | grep hibernatemode | awk '{print $2}')
+    if [[ $hibernate_mode -ne 0 ]]; then
+        echo "⚠️  ISSUE: hibernatemode is $hibernate_mode (should be 0 for servers)"
+        issues_found=$((issues_found + 1))
+    else
+        echo "✅ hibernatemode: $hibernate_mode (good)"
+    fi
+    
+    # Check standby
+    standby=$(pmset -g | grep -w standby | awk '{print $2}')
+    if [[ $standby -eq 1 ]]; then
+        echo "⚠️  ISSUE: standby is enabled (should be 0 for servers)"
+        issues_found=$((issues_found + 1))
+    else
+        echo "✅ standby: $standby (good)"
+    fi
+    
+    # Check powernap
+    powernap=$(pmset -g | grep powernap | awk '{print $2}')
+    if [[ $powernap -eq 1 ]]; then
+        echo "⚠️  ISSUE: powernap is enabled (should be 0 for servers)"
+        issues_found=$((issues_found + 1))
+    else
+        echo "✅ powernap: $powernap (good)"
+    fi
+    
+    # Check sleep settings
+    sleep_setting=$(pmset -g | grep -w sleep | awk '{print $2}')
+    if [[ $sleep_setting -ne 0 ]]; then
+        echo "⚠️  ISSUE: sleep is enabled ($sleep_setting minutes)"
+        issues_found=$((issues_found + 1))
+    else
+        echo "✅ sleep: $sleep_setting (good)"
+    fi
+    
+    # Check disksleep
+    disksleep=$(pmset -g | grep disksleep | awk '{print $2}')
+    if [[ $disksleep -ne 0 ]]; then
+        echo "⚠️  ISSUE: disksleep is enabled ($disksleep minutes)"
+        issues_found=$((issues_found + 1))
+    else
+        echo "✅ disksleep: $disksleep (good)"
+    fi
+    
+    # Check halt level (if available)
+    halt_level=$(pmset -g | grep haltlevel | awk '{print $2}' 2>/dev/null)
+    if [[ -n $halt_level && $halt_level -gt 10 ]]; then
+        echo "⚠️  ISSUE: haltlevel is $halt_level% (should be 5% or lower)"
+        issues_found=$((issues_found + 1))
+    elif [[ -n $halt_level ]]; then
+        echo "✅ haltlevel: $halt_level% (good)"
+    fi
+    
+    echo ""
+    if [[ $issues_found -eq 0 ]]; then
+        echo "🎉 No power management issues found!"
+    else
+        echo "❌ Found $issues_found power management issue(s) that could cause shutdowns"
+        echo "   Use -f flag to see recommended fixes"
+    fi
+    echo ""
+}
+
+show_battery_diagnostics() {
+    echo "🔋 Battery Diagnostics"
+    echo "====================="
+    
+    # Detailed battery info
+    pmset -g batt
+    echo ""
+    
+    # Battery health (if available)
+    if command -v system_profiler >/dev/null 2>&1; then
+        echo "🏥 Battery Health Information:"
+        echo "============================="
+        system_profiler SPPowerDataType | grep -A 10 -B 5 -i "cycle\|condition\|health\|capacity"
+        echo ""
+    fi
+    
+    # Critical power settings
+    echo "⚠️  Critical Battery Settings:"
+    echo "============================="
+    halt_level=$(pmset -g | grep haltlevel | awk '{print $2}' 2>/dev/null)
+    halt_after=$(pmset -g | grep haltafter | awk '{print $2}' 2>/dev/null)
+    autopoweroff=$(pmset -g | grep autopoweroff | awk '{print $2}' 2>/dev/null)
+    
+    echo "Halt Level: ${halt_level:-"Not set"}%"
+    echo "Halt After: ${halt_after:-"Not set"} minutes"
+    echo "Auto Power Off: ${autopoweroff:-"Not set"}"
+    
+    if [[ -n $halt_level && $halt_level -gt 10 ]]; then
+        echo "⚠️  WARNING: Halt level is high ($halt_level%). System may shut down early on battery."
+    fi
+    
+    if [[ $autopoweroff -eq 1 ]]; then
+        echo "⚠️  WARNING: Auto power off is enabled. System may shut down automatically."
+    fi
+    
+    echo ""
+}
+
+show_sleep_diagnostics() {
+    echo "😴 Sleep/Wake Diagnostics"
+    echo "========================"
+    
+    # Current sleep settings
+    echo "Current Sleep Settings:"
+    echo "======================"
+    pmset -g custom
+    echo ""
+    
+    # Power assertions
+    echo "🔒 Power Assertions (what's keeping system awake):"
+    echo "=================================================="
+    pmset -g assertions | head -20
+    echo ""
+    
+    # Recent wake/sleep log
+    echo "📝 Recent Sleep/Wake Events:"
+    echo "============================"
+    pmset -g log | grep -E "(Sleep|Wake|DarkWake)" | tail -10
+    echo ""
+}
+
+show_verbose_info() {
+    echo "🔍 Detailed Power Management Settings"
+    echo "===================================="
+    
+    # All power settings
+    pmset -g
+    echo ""
+    
+    # System power info
+    echo "⚙️  System Power Information:"
+    echo "============================"
+    if command -v system_profiler >/dev/null 2>&1; then
+        system_profiler SPPowerDataType
+    else
+        echo "system_profiler not available"
+    fi
+    echo ""
+}
+
+show_recommended_fixes() {
+    echo "🔧 Recommended Fixes for Power Issues"
+    echo "===================================="
+    echo ""
+    echo "Based on your current settings, here are the recommended fixes:"
+    echo ""
+    
+    # Analyze current settings and provide specific fixes
+    hibernate_mode=$(pmset -g | grep hibernatemode | awk '{print $2}')
+    standby=$(pmset -g | grep -w standby | awk '{print $2}')
+    powernap=$(pmset -g | grep powernap | awk '{print $2}')
+    sleep_setting=$(pmset -g | grep -w sleep | awk '{print $2}')
+    disksleep=$(pmset -g | grep disksleep | awk '{print $2}')
+    halt_level=$(pmset -g | grep haltlevel | awk '{print $2}' 2>/dev/null)
+    
+    echo "1️⃣  Quick Fix Commands (run these in order):"
+    echo "============================================="
+    echo ""
+    
+    if [[ $hibernate_mode -ne 0 ]]; then
+        echo "# Disable hibernation (prevents unexpected shutdowns)"
+        echo "sudo pmset -a hibernatemode 0"
+        echo ""
+    fi
+    
+    if [[ $standby -eq 1 ]]; then
+        echo "# Disable standby mode"
+        echo "sudo pmset -a standby 0"
+        echo ""
+    fi
+    
+    if [[ $powernap -eq 1 ]]; then
+        echo "# Disable power nap"
+        echo "sudo pmset -a powernap 0"
+        echo ""
+    fi
+    
+    if [[ $sleep_setting -ne 0 ]]; then
+        echo "# Disable system sleep completely"
+        echo "sudo pmset -a sleep 0"
+        echo ""
+    fi
+    
+    if [[ $disksleep -ne 0 ]]; then
+        echo "# Disable disk sleep"
+        echo "sudo pmset -a disksleep 0"
+        echo ""
+    fi
+    
+    if [[ -n $halt_level && $halt_level -gt 5 ]]; then
+        echo "# Set battery halt level to 5% (prevents early shutdown)"
+        echo "sudo pmset -b haltlevel 5"
+        echo "sudo pmset -b haltafter 0"
+        echo ""
+    fi
+    
+    echo "# Disable auto power off"
+    echo "sudo pmset -a autopoweroff 0"
+    echo ""
+    
+    echo "# Restart caffeinate if needed"
+    echo "pkill caffeinate 2>/dev/null"
+    echo "nohup caffeinate -imsud > /dev/null 2>&1 &"
+    echo ""
+    
+    echo "2️⃣  Complete Server Setup (recommended):"
+    echo "========================================"
+    echo ""
+    echo "# Use the enhanced server setup script:"
+    echo "sudo ./enhanced_server_setup.sh"
+    echo ""
+    
+    echo "3️⃣  Verification Commands:"
+    echo "========================="
+    echo ""
+    echo "# Check that settings were applied:"
+    echo "pmset -g"
+    echo ""
+    echo "# Verify caffeinate is running:"
+    echo "pgrep caffeinate"
+    echo ""
+    echo "# Check power assertions:"
+    echo "pmset -g assertions"
+    echo ""
+}
+
+show_all_diagnostics() {
+    show_basic_status
+    analyze_power_issues
+    show_battery_diagnostics
+    show_sleep_diagnostics
+    show_verbose_info
+    
+    echo "🔧 Troubleshooting Tips"
+    echo "======================"
+    echo "• If system shuts down on battery, check halt level: pmset -b haltlevel 5"
+    echo "• If system sleeps unexpectedly, ensure caffeinate is running"
+    echo "• For sleep issues, check assertions: pmset -g assertions"
+    echo "• To prevent all sleep: sudo pmset -a sleep 0"
+    echo "• To check what woke the system: pmset -g log"
+    echo ""
+    echo "🆘 Emergency Commands"
+    echo "===================="
+    echo "• Kill all sleep: sudo pmset -a sleep 0 disksleep 0 standby 0"
+    echo "• Restart caffeinate: pkill caffeinate && caffeinate -imsud &"
+    echo "• Reset power settings: sudo pmset -a restoredefaults"
+    echo ""
+}
+
+# Main script logic
+case "${1:-}" in
+    -h|--help)
+        show_help
+        ;;
+    -v|--verbose)
+        show_basic_status
+        show_verbose_info
+        ;;
+    -b|--battery)
+        show_basic_status
+        show_battery_diagnostics
+        ;;
+    -s|--sleep)
+        show_basic_status
+        show_sleep_diagnostics
+        ;;
+    -f|--fix)
+        show_basic_status
+        analyze_power_issues
+        show_recommended_fixes
+        ;;
+    -a|--all)
+        show_all_diagnostics
+        ;;
+    "")
+        show_basic_status
+        analyze_power_issues
+        ;;
+    *)
+        echo "❌ Unknown option: $1"
+        echo "Use 'power_diagnostics --help' for usage information"
+        exit 1
+        ;;
+esac

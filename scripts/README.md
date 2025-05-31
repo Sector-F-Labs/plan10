@@ -4,6 +4,10 @@ System monitoring utilities for Plan 10 server management.
 
 ## Scripts
 
+### Server Setup Scripts
+
+The main server setup is handled by the consolidated `server_setup.sh` script in the root directory, which includes comprehensive battery power management. The scripts in this directory provide monitoring and diagnostics.
+
 ### `temp`
 Temperature and thermal monitoring script for macOS systems.
 
@@ -39,6 +43,26 @@ battery --help # Show help message
 - Battery health and cycle count
 - Condition monitoring with alerts
 
+### `power_diagnostics`
+Power management diagnostics and troubleshooting script for macOS systems.
+
+**Usage:**
+```sh
+power_diagnostics        # Basic power status and analysis
+power_diagnostics -b     # Battery-focused diagnostics
+power_diagnostics -s     # Sleep/wake diagnostics
+power_diagnostics -f     # Show recommended fixes
+power_diagnostics -a     # Complete power analysis
+power_diagnostics --help # Show help message
+```
+
+**Features:**
+- Analyzes power management settings for server operation
+- Identifies issues that could cause shutdowns on battery power
+- Provides specific fix commands for identified problems
+- Monitors battery health and charging status
+- Checks caffeinate and power assertion status
+
 ### `setup_aliases.sh`
 Automatically configures shell aliases for the monitoring tools.
 
@@ -53,7 +77,8 @@ Automatically configures shell aliases for the monitoring tools.
 ### Automatic Deployment
 From your local machine:
 ```sh
-make push-scripts
+make push-enhanced     # Deploy server setup with power management + diagnostics
+make push-scripts      # Deploy monitoring scripts only
 ```
 
 ### Manual Installation
@@ -62,9 +87,14 @@ make push-scripts
 scp scripts/* user@server:~/scripts/
 ```
 
-2. Set up aliases:
+2. Set up server configuration:
 ```sh
 ssh user@server
+sudo ./server_setup.sh
+```
+
+3. Set up aliases:
+```sh
 cd ~/scripts
 ./setup_aliases.sh
 source ~/.zshrc  # or ~/.bashrc
@@ -76,6 +106,7 @@ After installation, these commands are available:
 
 - `temp` - System temperature monitoring
 - `battery` - Battery status and health
+- `power_diagnostics` - Power management diagnostics and fixes
 - `sysmon` - Help and command overview
 
 ## Requirements
