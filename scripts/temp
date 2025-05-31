@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Temperature monitoring script for macOS
+# Shows CPU and system temperatures
+
+# Function to get temperature from powermetrics
+get_temp_powermetrics() {
+    sudo powermetrics --samplers smc -n 1 -i 1000 2>/dev/null | grep -E "CPU die temperature|GPU die temperature" | head -2
+}
+
+# Function to get temperature from system_profiler (fallback)
+get_temp_system_profiler() {
+    system_profiler SPHardwareDataType | grep "Thermal State" 2>/dev/null
+}
+
+# Function to get temperature from iostat (alternative)
+get_temp_iostat() {
+    iostat -c 1 1 2>/dev/null | tail -1 | awk '{print "CPU Usage: " $1 "%"}'
+}
+
+# Function to display temperature in a nice format
+display_temp() {
+    echo "🌡️  System Temperature Status"
+    echo "================================"
+    
+    # Try powermetrics first (most accurate)
+    if command -v powermetrics >/dev/null 2>&1; then
+        temp_output=$(get_temp_powermetrics)
+        if [ -n "$temp_output" ]; then
+            echo "$temp_output"
+        else
+            echo "⚠️  Unable to get detailed temperature (requires sudo)"
+        fi
+    fi
+    
+    # Get thermal state
+    thermal_state=$(get_temp_system_profiler)
+    if [ -n "$thermal_state" ]; then
+        echo "$thermal_state"
+    fi
+    
+    # Get CPU usage as thermal indicator
+    cpu_usage=$(top -l 1 | grep "CPU usage" | awk '{print $3}' | sed 's/%//')
+    if [ -n "$cpu_usage" ]; then
+        echo "CPU Usage: ${cpu_usage}%"
+        
+        # Color code based on usage (convert float to int for comparison)
+        usage_num=$(echo "$cpu_usage" | cut -d'.' -f1)
+        if [ "$usage_num" -gt 80 ]; then
+            echo "🔥 High CPU load - system may be hot"
+        elif [ "$usage_num" -gt 50 ]; then
+            echo "🔶 Moderate CPU load"
+        else
+            echo "❄️  Low CPU load - system cool"
+        fi
+    fi
+    
+    # Show fan status if available
+    if command -v powermetrics >/dev/null 2>&1; then
+        fan_info=$(sudo powermetrics --samplers smc -n 1 -i 500 2>/dev/null | grep -i fan | head -3)
+        if [ -n "$fan_info" ]; then
+            echo ""
+            echo "💨 Fan Status:"
+            echo "$fan_info"
+        fi
+    fi
+}
+
+# Main execution
+case "${1:-}" in
+    -h|--help)
+        echo "Usage: temp [options]"
+        echo "Options:"
+        echo "  -h, --help    Show this help message"
+        echo "  -r, --raw     Show raw temperature data"
+        echo "  (no args)     Show formatted temperature status"
+        ;;
+    -r|--raw)
+        get_temp_powermetrics
+        ;;
+    *)
+        display_temp
+        ;;
+esac

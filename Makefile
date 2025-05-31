@@ -9,7 +9,7 @@ SERVER_HOST ?= plan10
 # Remote connection
 REMOTE_USER_HOST = $(SERVER_USER)@$(SERVER_HOST)
 
-.PHONY: all clean push help setup check-env apps
+.PHONY: all clean push push-scripts help setup check-env apps
 
 help:
 	@echo "Plan 10 Server Setup"
@@ -17,6 +17,7 @@ help:
 	@echo "Available targets:"
 	@echo "  setup       - Run interactive setup to create .env file"
 	@echo "  push        - Deploy core server configuration"
+	@echo "  push-scripts - Deploy system monitoring scripts and set up aliases"
 	@echo "  check-env   - Show current configuration"
 	@echo "  apps        - Show available applications"
 	@echo "  clean       - Clean temporary files"
@@ -72,7 +73,27 @@ push:
 	@echo "Next steps:"
 	@echo "  1. SSH to your server: ssh $(REMOTE_USER_HOST)"
 	@echo "  2. Run server setup: sudo ./server_setup.sh"
-	@echo "  3. Configure applications in apps/ directories as needed"
+	@echo "  3. Deploy monitoring scripts: make push-scripts"
+	@echo "  4. Configure applications in apps/ directories as needed"
+
+push-scripts:
+	@echo "📊 Deploying system monitoring scripts to $(REMOTE_USER_HOST)..."
+	@echo "📁 Creating scripts directory..."
+	ssh $(REMOTE_USER_HOST) 'mkdir -p ~/scripts'
+	@echo "📁 Copying monitoring scripts..."
+	scp scripts/temp $(REMOTE_USER_HOST):~/scripts/
+	scp scripts/battery $(REMOTE_USER_HOST):~/scripts/
+	scp scripts/setup_aliases.sh $(REMOTE_USER_HOST):~/scripts/
+	@echo "🔧 Setting up aliases..."
+	ssh $(REMOTE_USER_HOST) 'cd ~/scripts && ./setup_aliases.sh'
+	@echo "✅ System monitoring scripts deployed!"
+	@echo ""
+	@echo "Available commands on server:"
+	@echo "  temp     - Show system temperature and thermal status"
+	@echo "  battery  - Show battery level, charging status, and health"
+	@echo "  sysmon   - Show help for system monitoring tools"
+	@echo ""
+	@echo "💡 Use 'ssh $(REMOTE_USER_HOST)' and run 'source ~/.zshrc' or open a new session"
 
 clean:
 	@echo "🧹 Cleaning up temporary files..."

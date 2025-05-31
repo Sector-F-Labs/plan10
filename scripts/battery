@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# Battery monitoring script for macOS
+# Shows battery status, health, and charging information
+
+# Function to get battery info using pmset
+get_battery_pmset() {
+    pmset -g batt 2>/dev/null
+}
+
+# Function to get detailed battery info using system_profiler
+get_battery_detailed() {
+    system_profiler SPPowerDataType 2>/dev/null
+}
+
+# Function to get battery cycle count and health
+get_battery_health() {
+    system_profiler SPPowerDataType 2>/dev/null | grep -E "Cycle Count|Condition|Full Charge Capacity|Maximum Capacity"
+}
+
+# Function to display battery status in a nice format
+display_battery() {
+    echo "🔋 Battery Status"
+    echo "=================="
+    
+    # Get basic battery info
+    battery_info=$(get_battery_pmset)
+    
+    if [ -n "$battery_info" ]; then
+        # Extract percentage
+        percentage=$(echo "$battery_info" | grep -o '[0-9]*%' | head -1)
+        
+        # Extract charging status
+        if echo "$battery_info" | grep -q "AC Power"; then
+            charging_status="🔌 Charging (AC Power)"
+        elif echo "$battery_info" | grep -q "discharging"; then
+            charging_status="⚡ Discharging"
+        elif echo "$battery_info" | grep -q "charged"; then
+            charging_status="✅ Fully Charged"
+        else
+            charging_status="❓ Unknown"
+        fi
+        
+        # Extract time remaining
+        time_remaining=$(echo "$battery_info" | grep -o '[0-9]*:[0-9]*' | head -1)
+        
+        echo "Charge Level: $percentage"
+        echo "Status: $charging_status"
+        
+        if [ -n "$time_remaining" ]; then
+            if echo "$battery_info" | grep -q "discharging"; then
+                echo "Time Remaining: $time_remaining"
+            elif echo "$battery_info" | grep -q "charging"; then
+                echo "Time to Full: $time_remaining"
+            fi
+        fi
+        
+        # Color code percentage
+        percentage_num=$(echo "$percentage" | sed 's/%//')
+        if [ "$percentage_num" -le 20 ]; then
+            echo "🔴 Low Battery - Consider charging"
+        elif [ "$percentage_num" -le 50 ]; then
+            echo "🟡 Medium Battery"
+        else
+            echo "🟢 Good Battery Level"
+        fi
+        
+    else
+        echo "❌ Unable to get battery information"
+        echo "This device may not have a battery or battery monitoring is unavailable"
+    fi
+}
+
+# Function to display detailed battery health
+display_health() {
+    echo ""
+    echo "🏥 Battery Health"
+    echo "=================="
+    
+    health_info=$(get_battery_health)
+    
+    if [ -n "$health_info" ]; then
+        echo "$health_info" | while read -r line; do
+            if [[ "$line" == *"Cycle Count"* ]]; then
+                cycles=$(echo "$line" | grep -o '[0-9]*')
+                echo "Cycle Count: $cycles"
+                if [ "$cycles" -gt 1000 ]; then
+                    echo "⚠️  High cycle count - battery may need replacement"
+                elif [ "$cycles" -gt 500 ]; then
+                    echo "🔶 Moderate cycle count"
+                else
+                    echo "✅ Low cycle count - battery in good shape"
+                fi
+            elif [[ "$line" == *"Condition"* ]]; then
+                condition=$(echo "$line" | sed 's/.*Condition: //')
+                echo "Condition: $condition"
+                if [[ "$condition" == *"Normal"* ]]; then
+                    echo "✅ Battery condition is normal"
+                else
+                    echo "⚠️  Battery condition: $condition"
+                fi
+            elif [[ "$line" == *"Maximum Capacity"* ]]; then
+                echo "$line"
+            elif [[ "$line" == *"Full Charge Capacity"* ]]; then
+                echo "$line"
+            fi
+        done
+    else
+        echo "❌ Unable to get battery health information"
+    fi
+}
+
+# Function to show raw battery data
+display_raw() {
+    echo "Raw Battery Data:"
+    echo "=================="
+    get_battery_pmset
+    echo ""
+    get_battery_detailed | grep -A 20 -B 5 -i battery
+}
+
+# Main execution
+case "${1:-}" in
+    -h|--help)
+        echo "Usage: battery [options]"
+        echo "Options:"
+        echo "  -h, --help     Show this help message"
+        echo "  -r, --raw      Show raw battery data"
+        echo "  -d, --detailed Show detailed battery health info"
+        echo "  (no args)      Show formatted battery status"
+        ;;
+    -r|--raw)
+        display_raw
+        ;;
+    -d|--detailed)
+        display_battery
+        display_health
+        ;;
+    *)
+        display_battery
+        ;;
+esac

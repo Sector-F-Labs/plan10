@@ -106,6 +106,7 @@ make help           # Show all available commands
 make setup          # Interactive environment setup
 make check-env      # Display current configuration
 make push           # Deploy configuration to server
+make push-scripts   # Deploy system monitoring scripts
 ```
 
 ## Clamshell Mode
@@ -146,6 +147,27 @@ launchctl list | grep caffeinate
 - The server will remain awake indefinitely - monitor power consumption
 - Review which services auto-start with the system
 
+## System Monitoring
+
+Built-in system monitoring scripts provide real-time server status:
+
+### Deploy Monitoring Scripts
+```sh
+make push-scripts
+```
+
+### Available Commands (after deployment)
+- `temp` - System temperature and thermal status monitoring
+- `battery` - Battery level, charging status, and health information
+- `sysmon` - Help and overview of monitoring tools
+
+### Features
+- **Temperature Monitoring**: CPU/GPU temperatures, thermal state, fan status
+- **Battery Monitoring**: Charge level, health metrics, cycle count tracking
+- **Shell Integration**: Automatic alias setup for easy access
+
+See `scripts/README.md` for detailed usage and examples.
+
 ## Applications
 
 Additional applications can be installed and configured separately:
@@ -164,6 +186,11 @@ plan10/
 ├── setup.sh              # Interactive configuration setup
 ├── server_setup.sh       # Server configuration script
 ├── caffeinate.plist      # LaunchAgent for persistent wake
+├── scripts/              # System monitoring utilities
+│   ├── README.md         # Monitoring scripts documentation
+│   ├── temp              # Temperature monitoring script
+│   ├── battery           # Battery monitoring script
+│   └── setup_aliases.sh  # Alias configuration script
 └── apps/                 # Application-specific configurations
     └── neo4j/            # Neo4j database setup
 ```
