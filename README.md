@@ -165,58 +165,26 @@ make push-scripts   # Deploy system monitoring scripts
 make apps           # Show available applications
 ```
 
-## System Monitoring Commands (After Deployment)
+## Documentation
 
+- **[Usage Guide](docs/usage.md)** - Complete guide for daily operations, monitoring, and management
+- **[Troubleshooting Guide](docs/troubleshooting.md)** - Solutions for common issues and recovery procedures
+
+## Quick Reference
+
+### System Monitoring Commands (After Deployment)
 - `temp` - System temperature and thermal status
 - `battery` - Battery level, charging status, and health
 - `sysmon` - Help and overview of monitoring tools
 
-### Example Output
-```
-🌡️  System Temperature Status
-================================
-CPU die temperature: 45.2°C
-CPU Usage: 23%
-❄️  Low CPU load - system cool
+For detailed usage examples and advanced operations, see the [Usage Guide](docs/usage.md).
 
-🔋 Battery Status
-==================
-Charge Level: 87%
-Status: 🔌 Charging (AC Power)
-🟢 Good Battery Level
-```
+### Common Issues
+- **SSH Connection Problems** - See [SSH troubleshooting](docs/troubleshooting.md#ssh-connection-issues)
+- **Power Management Issues** - See [Power management troubleshooting](docs/troubleshooting.md#power-management-issues)
+- **Auto Login Not Working** - See [Auto login troubleshooting](docs/troubleshooting.md#auto-login-not-working)
 
-## Troubleshooting
-
-### SSH Connection Issues
-```sh
-# Test basic connectivity
-ping your-server-ip
-
-# Test SSH with verbose output
-ssh -v your-user@your-server
-
-# Check if SSH is running on server
-sudo launchctl list | grep ssh
-```
-
-### Power Management Issues
-```sh
-# Check if caffeinate is running
-pgrep -x "caffeinate"
-
-# View current power settings
-pmset -g
-
-# Check LaunchAgent status
-launchctl list | grep caffeinate
-```
-
-### Auto Login Not Working
-- Verify FileVault is disabled (incompatible with auto login)
-- Check System Settings > Login Items & Extensions
-- Ensure user password is correct
-- Restart and observe boot process
+For complete troubleshooting information, see the [Troubleshooting Guide](docs/troubleshooting.md).
 
 ## Security Considerations
 
@@ -245,6 +213,9 @@ plan10/
 ├── setup.sh              # Interactive configuration setup
 ├── server_setup.sh       # Server configuration script
 ├── caffeinate.plist      # LaunchAgent for persistent wake
+├── docs/                 # Documentation
+│   ├── usage.md          # Complete usage and operations guide
+│   └── troubleshooting.md # Troubleshooting and recovery guide
 ├── scripts/              # System monitoring utilities
 │   ├── README.md         # Monitoring scripts documentation
 │   ├── temp              # Temperature monitoring script
