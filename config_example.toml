@@ -1,0 +1,40 @@
+[client]
+default_server = "plan10"
+deployment_timeout = 300
+concurrent_operations = 4
+auto_backup = true
+
+[server]
+name = "plan10-server"
+monitoring_interval = 30
+temp_threshold = 80.0
+battery_warning_level = 20
+auto_restart_services = true
+log_level = "info"
+services = ["caffeinate", "plan10-monitor"]
+
+[ssh]
+connect_timeout = 30
+command_timeout = 60
+key_path = "~/.ssh/id_ed25519"
+known_hosts_file = "~/.ssh/known_hosts"
+compression = true
+keep_alive = true
+
+[servers.plan10]
+name = "plan10"
+host = "plan10.local"
+user = "admin"
+port = 22
+ssh_key = "~/.ssh/id_ed25519"
+tags = ["server", "monitoring"]
+enabled = true
+
+[servers.localhost]
+name = "localhost"
+host = "127.0.0.1"
+user = "divan"
+port = 22
+ssh_key = "~/.ssh/id_ed25519"
+tags = ["local", "testing"]
+enabled = true

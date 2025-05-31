@@ -1,0 +1,65 @@
+[package]
+name = "plan10-cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Plan 10 Contributors"]
+description = "Command-line interface for Plan 10 MacBook server management"
+license = "BSD-3-Clause"
+repository = "https://github.com/plan10/plan10"
+keywords = ["macos", "server", "power-management", "monitoring"]
+categories = ["command-line-utilities", "system-tools"]
+
+[[bin]]
+name = "plan10"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive", "env", "color"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+thiserror = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+colored = "2.0"
+indicatif = "0.17"
+dirs = "5.0"
+shellexpand = "3.1"
+regex = "1.10"
+uuid = { version = "1.6", features = ["v4"] }
+hostname = "0.3"
+
+# SSH and networking
+ssh2 = "0.9"
+russh = "0.40"
+russh-keys = "0.40"
+
+# System utilities
+sysinfo = "0.29"
+users = "0.11"
+nix = "0.27"
+
+# Configuration and environment
+config = "0.13"
+dotenv = "0.15"
+
+# File operations
+walkdir = "2.4"
+tempfile = "3.8"
+
+[dev-dependencies]
+tempdir = "0.3"
+assert_cmd = "2.0"
+predicates = "3.0"
+
+[features]
+default = ["client", "server"]
+client = []
+server = []
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

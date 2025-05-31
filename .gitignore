@@ -44,3 +44,5 @@ apps/*/plugins/
 # Temporary files
 .tmp/
 tmp/
+
+target/
