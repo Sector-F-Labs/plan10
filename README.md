@@ -2,6 +2,20 @@
 
 Transform your MacBook into a dedicated headless server running in clamshell mode.
 
+## Why Plan 10?
+
+There are many MacBooks out there, especially the Intel kind, that have become almost unusable with fans spinning up constantly. Most of this whirring is due to their inability to handle the graphical tasks of modern macOS workloads. However, these machines are powerful Unix systems under the hood that are much more capable than a Raspberry Pi and have the potential to live for much longer in use as a home server (Plus they come with built in UPS and battery backup during power outages).
+
+So the Plan 10 project was born, with a name loosely inspired by [Plan 9](https://en.wikipedia.org/wiki/Plan_9_from_Bell_Labs), since you can quite easily configure networked storage between Macs and the clean, minimal approach kind of hints at Plan 9-iness.
+
+**Benefits of repurposing your MacBook as a server:**
+- **More powerful than typical home servers** - Intel MacBooks have substantial CPU and RAM
+- **Excellent build quality** - Apple hardware is designed to last
+- **Built-in UPS** - Battery backup during power outages
+- **Low power consumption** - Especially when running headless
+- **Familiar Unix environment** - Full macOS with Terminal access
+- **Cost effective** - Repurpose existing hardware instead of buying new
+
 ## Overview
 
 Plan 10 automates the setup of a MacBook as a persistent server with the following core features:
@@ -209,6 +223,7 @@ Each application directory contains its own README and deployment scripts.
 ```
 plan10/
 ├── README.md              # This file - complete setup guide
+├── LICENSE               # BSD 3-Clause License
 ├── Makefile              # Main deployment automation
 ├── setup.sh              # Interactive configuration setup
 ├── server_setup.sh       # Server configuration script
@@ -264,6 +279,10 @@ When adding new applications or features:
 3. Add a Makefile for deployment automation if complex
 4. Update this main README if core server functionality changes
 5. Test thoroughly on a fresh macOS installation
+
+## License
+
+Plan 10 is released under the BSD 3-Clause License. See [LICENSE](LICENSE) for details.
 
 ## Support
 
