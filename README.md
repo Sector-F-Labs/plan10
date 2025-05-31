@@ -134,10 +134,6 @@ Install the Plan 10 CLI with a single command:
 # Install Plan 10 CLI (installs Rust if needed)
 curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install.sh | sh
 
-# Or use the compact one-liner
-curl -sSf https://raw.githubusercontent.com/plan10/plan10/main/install-one-liner.sh | sh
-```
-
 This installer will:
 - Check for Rust/Cargo and install if missing
 - Install Plan 10 CLI from GitHub
